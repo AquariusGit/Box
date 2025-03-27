@@ -1406,7 +1406,7 @@ public class VodController extends BaseController {
                 if (isInPlayback) {
                     togglePlay();
                     if (!isBottomVisible() && isPaused) {
-                        showBottom();
+                        //showBottom();
                     }
                     return true;
                 }
