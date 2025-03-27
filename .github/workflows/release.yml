@@ -29,4 +29,5 @@ jobs:
  
     - name: Build and sign APK
       run: |
-        ./gradlew assembleRelease -Pandroid.injected.signing.store.file=my-release-key.keystore -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} -Pandroid.injected.signing.key.alias=my-alias-name -Pandroid.injected.signing.key.password=${{ secrets.KEYSTORE_KEY_PASSWORD }}
+          chmod +x gradlew
+          ./gradlew assemblerelease -Pandroid.injected.signing.store.file=my-release-key.keystore -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} -Pandroid.injected.signing.key.alias=my-alias-name -Pandroid.injected.signing.key.password=${{ secrets.KEYSTORE_KEY_PASSWORD }}
