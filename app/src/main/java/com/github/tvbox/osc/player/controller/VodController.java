@@ -1426,10 +1426,10 @@ public class VodController extends BaseController {
                 int streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
                 int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 				
-				// 按 1% 的步进调整音量
-				step=Math.round(streamMaxVolume * 0.01f);
-				if(step<1){
-					step=1;
+		// 按 1% 的步进调整音量
+		step=Math.round(streamMaxVolume * 0.01f);
+		if(step<1){
+			step=1;
                 }
                 int newVolume = Math.min(streamMaxVolume, streamVolume + step);   
 
@@ -1442,17 +1442,16 @@ public class VodController extends BaseController {
                 int streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
                 int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 				
-				// 按 1% 的步进调整音量
-				step=Math.round(streamMaxVolume * 0.01f);
-				if(step<1){
-					step=1;
+		// 按 1% 的步进调整音量
+		step=Math.round(streamMaxVolume * 0.01f);
+		if(step<1){
+			step=1;
                 }
 
                 // 按 1% 的步进调整音量
-                int newVolume = Math.max(0, streamVolume - step));
+                int newVolume = Math.max(0, streamVolume - step);
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0);
                 return true;
-
             } 
 			
         if (action == KeyEvent.ACTION_DOWN) {
