@@ -1397,12 +1397,17 @@ public class VodController extends BaseController {
             return super.dispatchKeyEvent(event);
         }
         if (action == KeyEvent.ACTION_DOWN) {
-            if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+            if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_3 || keyCode == KeyEvent.KEYCODE_6 || keyCode == KeyEvent.KEYCODE_9) {
                 if (isInPlayback) {
-                    tvSlideStart(keyCode == KeyEvent.KEYCODE_DPAD_RIGHT ? 1 : -1);
+                    tvSlideStart(1);
                     return true;
                 }
-            } else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE) {
+            } else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_1 || keyCode == KeyEvent.KEYCODE_4 || keyCode == KeyEvent.KEYCODE_7) {
+                if (isInPlayback) {
+                    tvSlideStart(-1);
+                    return true;
+                }
+            } else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE || keyCode == KeyEvent.KEYCODE_0 || keyCode == KeyEvent.KEYCODE_2 || keyCode == KeyEvent.KEYCODE_5 || keyCode == KeyEvent.KEYCODE_8) {
                 if (isInPlayback) {
                     togglePlay();
                     if (!isBottomVisible() && isPaused) {
@@ -1411,6 +1416,16 @@ public class VodController extends BaseController {
                     return true;
                 }
                 // takagen99 : Key Up to focus Start Time Skip
+            }  else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                if (!isBottomVisible()) {
+                         
+                    return true;
+                }
+            }  else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                if (!isBottomVisible()) {
+                   
+                    return true;
+                }
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                 if (!isBottomVisible()) {
                     showBottom();
@@ -1424,7 +1439,17 @@ public class VodController extends BaseController {
                 }
             }
         } else if (action == KeyEvent.ACTION_UP) {
-            if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+            if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_LEFT
+               || keyCode == KeyEvent.KEYCODE_1 
+               || keyCode == KeyEvent.KEYCODE_2 
+               || keyCode == KeyEvent.KEYCODE_3 
+               || keyCode == KeyEvent.KEYCODE_4 
+               || keyCode == KeyEvent.KEYCODE_5 
+               || keyCode == KeyEvent.KEYCODE_6 
+               || keyCode == KeyEvent.KEYCODE_7 
+               || keyCode == KeyEvent.KEYCODE_8 
+               || keyCode == KeyEvent.KEYCODE_9 
+               || keyCode == KeyEvent.KEYCODE_0 ) {
                 if (isInPlayback) {
                     tvSlideStop();
                     return true;
