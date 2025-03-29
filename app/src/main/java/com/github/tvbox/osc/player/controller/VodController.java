@@ -1417,15 +1417,17 @@ public class VodController extends BaseController {
                 }
                 // takagen99 : Key Up to focus Start Time Skip
             }  else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                if (!isBottomVisible()) {
-                         
-                    return true;
-                }
+                AudioManager audioManager=(AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);      
+                int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (streamVolume+2), 0);
+                return true;
+               
             }  else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                if (!isBottomVisible()) {
-                   
-                    return true;
-                }
+               AudioManager audioManager=(AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);    
+               int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+               mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (streamVolume-2), 0);
+               return true;
+               
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                 if (!isBottomVisible()) {
                     showBottom();
