@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.media.AudioManager;
 
 import androidx.annotation.NonNull;
 
@@ -534,12 +535,22 @@ public class VodController extends BaseController {
         int keyCode = event.getKeyCode();
         int action = event.getAction();
         if (action == KeyEvent.ACTION_DOWN) {
-            if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                //AudioManager mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            }
+            else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_3 || keyCode == KeyEvent.KEYCODE_6 || keyCode == KeyEvent.KEYCODE_9) {
                 if (isInPlayback) {
-                    tvSlideStart(keyCode == KeyEvent.KEYCODE_DPAD_RIGHT ? 1 : -1);
+                    tvSlideStart(1);
                     return true;
                 }
-            } else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE) {
+            }
+            else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_1 || keyCode == KeyEvent.KEYCODE_4 || keyCode == KeyEvent.KEYCODE_7)  {
+                if (isInPlayback) {
+                    tvSlideStart(-1);
+                    return true;
+                }
+            } else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE || keyCode == KeyEvent.KEYCODE_2 || keyCode == KeyEvent.KEYCODE_5 || keyCode == KeyEvent.KEYCODE_8) {
                 if (isInPlayback) {
                     togglePlay();
                     return true;
