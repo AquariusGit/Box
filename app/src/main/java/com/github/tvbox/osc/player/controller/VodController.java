@@ -1415,6 +1415,28 @@ public class VodController extends BaseController {
         if (super.onKeyEvent(event)) {
             return true;
         }
+
+         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+                int streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+                int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+                // 按 1% 的步进调整音量
+                int newVolume = Math.min(streamMaxVolume, streamVolume + Math.round(streamMaxVolume * 0.01f));
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+                int streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+                int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+                // 按 1% 的步进调整音量
+                int newVolume = Math.max(0, streamVolume - Math.round(streamMaxVolume * 0.01f));
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0);
+                return true;
+
+            } 
+        
         if (isBottomVisible()) {
             mHandler.removeCallbacks(mHideBottomRunnable);
             mHandler.postDelayed(mHideBottomRunnable, 8000);
@@ -1447,25 +1469,6 @@ public class VodController extends BaseController {
                     return true;
                 }
                 // takagen99 : Key Up to focus Start Time Skip
-            } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
-                int streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-                int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-
-                // 按 1% 的步进调整音量
-                int newVolume = Math.min(streamMaxVolume, streamVolume + Math.round(streamMaxVolume * 0.01f));
-                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0);
-                return true;
-            } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
-                int streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-                int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-
-                // 按 1% 的步进调整音量
-                int newVolume = Math.max(0, streamVolume - Math.round(streamMaxVolume * 0.01f));
-                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0);
-                return true;
-
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                 if (!isBottomVisible()) {
                     showBottom();
