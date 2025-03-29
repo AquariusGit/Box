@@ -1416,13 +1416,26 @@ public class VodController extends BaseController {
             return true;
         }
 
-         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+         
+        
+        if (isBottomVisible()) {
+            mHandler.removeCallbacks(mHideBottomRunnable);
+            mHandler.postDelayed(mHideBottomRunnable, 8000);
+            return super.dispatchKeyEvent(event);
+        }
+        if (action == KeyEvent.ACTION_DOWN) {
+
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
                 AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
                 int streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
                 int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 
                 // 按 1% 的步进调整音量
-                int newVolume = Math.min(streamMaxVolume, streamVolume + Math.round(streamMaxVolume * 0.01f));
+                step=Math.round(streamMaxVolume * 0.01f);
+                if(step<1){
+                    step=1；
+                }
+                int newVolume = Math.min(streamMaxVolume, streamVolume + step);                
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0);
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
@@ -1431,19 +1444,15 @@ public class VodController extends BaseController {
                 int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 
                 // 按 1% 的步进调整音量
-                int newVolume = Math.max(0, streamVolume - Math.round(streamMaxVolume * 0.01f));
+                step=Math.round(streamMaxVolume * 0.01f);
+                if(step<1){
+                    step=1；
+                }
+                int newVolume = Math.min(streamMaxVolume, streamVolume - step);                
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0);
                 return true;
 
-            } 
-        
-        if (isBottomVisible()) {
-            mHandler.removeCallbacks(mHideBottomRunnable);
-            mHandler.postDelayed(mHideBottomRunnable, 8000);
-            return super.dispatchKeyEvent(event);
-        }
-        if (action == KeyEvent.ACTION_DOWN) {
-            if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_MEDIA_NEXT
+            } else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_MEDIA_NEXT
                     || keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD || keyCode == KeyEvent.KEYCODE_3
                     || keyCode == KeyEvent.KEYCODE_6 || keyCode == KeyEvent.KEYCODE_9) {
                 if (isInPlayback) {
