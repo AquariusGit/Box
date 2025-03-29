@@ -1421,13 +1421,13 @@ public class VodController extends BaseController {
             }  else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
                 AudioManager audioManager=(AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);      
                 int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (streamVolume+2), 0);
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (streamVolume+2), 0);
                 return true;
                
             }  else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
                AudioManager audioManager=(AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);    
                int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-               mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (streamVolume-2), 0);
+               audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (streamVolume-2), 0);
                return true;
                
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
