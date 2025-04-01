@@ -1420,37 +1420,39 @@ public class VodController extends BaseController {
             mHandler.postDelayed(mHideBottomRunnable, 8000);
             return super.dispatchKeyEvent(event);
         }
-		
-		 
-			
+
         if (action == KeyEvent.ACTION_DOWN) {
-		if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
                 AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
                 int streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
                 int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-				
-		// 按 1% 的步进调整音量
-		int step=Math.round(streamMaxVolume * 0.01f);
-		if(step<1){
-			step=1;
+
+                // 按 1% 的步进调整音量
+                int step = Math.round(streamMaxVolume * 0.01f);
+                if (step < 1) {
+                    step = 1;
                 }
-			
-                int newVolume = Math.min(streamMaxVolume, streamVolume + step);   
-		audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0);
+
+                int newVolume = Math.min(streamMaxVolume, streamVolume + step);
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0);
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
                 AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
                 int streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
                 int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-				
-		// 按 1% 的步进调整音量
-		int step=Math.round(streamMaxVolume * 0.01f);
-		if(step<1){
-			step=1;
+
+                // 按 1% 的步进调整音量
+                int step = Math.round(streamMaxVolume * 0.01f);
+                if (step < 1) {
+                    step = 1;
                 }
 
                 int newVolume = Math.max(0, streamVolume - step);
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
+                AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);                  
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 7, 0);
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_MEDIA_NEXT
                     || keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD || keyCode == KeyEvent.KEYCODE_3
