@@ -1192,7 +1192,7 @@ public class VodController extends BaseController {
             return;
 
         long currentTime = System.currentTimeMillis();
-        final int baseSkip = 10000; // 基础跳转10秒
+        final int baseSkip = 5000; // 基础跳转10秒
         final float accelerationFactor = 1.5f; // 连续操作时的加速因子
         final long threshold = 500; // 操作间隔阈值500ms
 
