@@ -1480,8 +1480,12 @@ public class VodController extends BaseController {
                 }
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
                 if (!isBottomVisible()) {
-                    showBottom();
+                    AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);                  
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 2, 0);
                     return true;
+
+                    //showBottom();
+                    //return true;
                 }
             }
         } else if (action == KeyEvent.ACTION_UP) {
