@@ -1446,6 +1446,7 @@ public class VodController extends BaseController {
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_MEDIA_NEXT
                     || keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD || keyCode == KeyEvent.KEYCODE_3
+                    || keyCode == KeyEvent.KEYCODE_BUTTON_A
                     || keyCode == KeyEvent.KEYCODE_6 || keyCode == KeyEvent.KEYCODE_9) {
                 if (isInPlayback) {
                     tvSlideStart(1);
@@ -1453,6 +1454,7 @@ public class VodController extends BaseController {
                 }
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS
                     || keyCode == KeyEvent.KEYCODE_MEDIA_REWIND || keyCode == KeyEvent.KEYCODE_1
+                    || keyCode == KeyEvent.KEYCODE_BUTTON_Y
                     || keyCode == KeyEvent.KEYCODE_4 || keyCode == KeyEvent.KEYCODE_7) {
                 if (isInPlayback) {
                     tvSlideStart(-1);
@@ -1461,6 +1463,7 @@ public class VodController extends BaseController {
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER
                     || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE || keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER
                     || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY || keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE
+                    || keyCode == KeyEvent.KEYCODE_BUTTON_B || keyCode == KeyEvent.KEYCODE_BUTTON_X
                     || keyCode == KeyEvent.KEYCODE_0
                     || keyCode == KeyEvent.KEYCODE_2 || keyCode == KeyEvent.KEYCODE_5
                     || keyCode == KeyEvent.KEYCODE_8 || keyCode == KeyEvent.KEYCODE_HEADSETHOOK ) {
@@ -1503,7 +1506,11 @@ public class VodController extends BaseController {
                     || keyCode == KeyEvent.KEYCODE_7
                     || keyCode == KeyEvent.KEYCODE_8
                     || keyCode == KeyEvent.KEYCODE_9
-                    || keyCode == KeyEvent.KEYCODE_0) {
+                    || keyCode == KeyEvent.KEYCODE_0
+                    || keyCode == KeyEvent.KEYCODE_BUTTON_A
+                    || keyCode == KeyEvent.KEYCODE_BUTTON_B
+                    || keyCode == KeyEvent.KEYCODE_BUTTON_X
+                    || keyCode == KeyEvent.KEYCODE_BUTTON_Y) {
                 if (isInPlayback) {
                     tvSlideStop();
                     return true;
