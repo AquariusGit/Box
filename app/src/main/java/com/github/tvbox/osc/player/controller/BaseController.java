@@ -378,6 +378,14 @@ public abstract class BaseController extends BaseVideoController implements Gest
                 ((IGestureComponent) component).onPositionChange(position, currentPosition, duration);
             }
         }
+
+        if(position>0){
+            position=currentPosition+4000;
+        }
+        else{
+            position=currentPosition-4000;
+        }
+        
         updateSeekUI(currentPosition, position, duration);
         mSeekPosition = position;
     }
