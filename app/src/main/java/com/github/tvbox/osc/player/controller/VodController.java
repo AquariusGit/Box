@@ -1565,6 +1565,7 @@ public class VodController extends BaseController {
                     tvSlideStop();
                     return true;
                 }
+            }
         }
         return super.dispatchKeyEvent(event);
     }
