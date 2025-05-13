@@ -66,6 +66,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.HashMap;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.FileInputStream;
+
+import java.lang.reflect.*;
+
 
 import xyz.doikki.videoplayer.player.VideoView;
 import xyz.doikki.videoplayer.util.PlayerUtils;
@@ -1454,6 +1463,8 @@ public class VodController extends BaseController {
                     keyNameToCode.put(field.getName(), field.getInt(null));
                 }
             }
+
+            obj.
 
             // 将配置文件中的键名映射到 KeyEvent 的键值
             for (String key : obj.keySet()) {
