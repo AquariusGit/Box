@@ -1464,8 +1464,6 @@ public class VodController extends BaseController {
                 }
             }
 
-            obj.
-
             // 将配置文件中的键名映射到 KeyEvent 的键值
             for (String key : obj.keySet()) {
                 if (keyNameToCode.containsKey(key)) {
