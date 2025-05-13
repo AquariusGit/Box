@@ -1520,6 +1520,7 @@ public class VodController extends BaseController {
                     }
 
                 case "increaseVolume":
+                {
                     AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
                     int streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
                     int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
@@ -1533,8 +1534,11 @@ public class VodController extends BaseController {
                     int newVolume = Math.min(streamMaxVolume, streamVolume + step);
                     audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0);
                     return true;
+                }
+                    
 
                 case "decreaseVolume":
+                {
                     AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
                     int streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
                     int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
@@ -1548,6 +1552,7 @@ public class VodController extends BaseController {
                     int newVolume = Math.max(0, streamVolume - step);
                     audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0);
                     return true;
+                }
 
                 case "muteVolume":
                     if (!isBottomVisible()) {
