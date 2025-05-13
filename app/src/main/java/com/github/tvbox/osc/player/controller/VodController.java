@@ -1422,7 +1422,7 @@ public class VodController extends BaseController {
     private void loadKeyMapConfig() {
         try {
             // 优先从存储根目录加载 keymap.json
-            File externalFile;
+            File externalFile=null;
 
             try {
                 externalFile = new File(Environment.getExternalStorageDirectory(), "keymap.json");
@@ -1437,7 +1437,7 @@ public class VodController extends BaseController {
                
             }
             InputStream is;
-            if (externalFile.exists()) {
+            if ( null!=externalFile && externalFile.exists()) {
                 try {
                     is = new FileInputStream(externalFile);
                 } catch (Exception e) {
