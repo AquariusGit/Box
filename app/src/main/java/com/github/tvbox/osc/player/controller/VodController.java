@@ -1445,7 +1445,8 @@ public class VodController extends BaseController {
 
                     if(null!=externalFile && !externalFile.exists()) {                        
                         new File(context.getFilesDir(), "keymap2.json").createNewFile();
-                        new File(context.getExternalFilesDir(), "keymap3.json").createNewFile();
+                        new File(Environment.getDataDirectory(), "keymap4.json").createNewFile();
+
                     }
                 } catch (Exception ex) {
                     
