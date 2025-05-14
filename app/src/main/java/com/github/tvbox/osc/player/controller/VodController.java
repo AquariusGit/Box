@@ -1213,9 +1213,19 @@ public class VodController extends BaseController {
             return;
 
         long currentTime = System.currentTimeMillis();
-        final int baseSkip = 5000; // 基础跳转10秒
+        int baseSkip = 5000; // 基础跳转5秒
         final float accelerationFactor = 1.5f; // 连续操作时的加速因子
         final long threshold = 500; // 操作间隔阈值500ms
+
+        try{
+            if (this.configJson != null) {
+                string stepString = configJson.getString("step");
+                baseSkip= Integer.parseInt(stepString);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+       
 
         if (!simSlideStart) {
             simSlideStart = true;
@@ -1419,6 +1429,8 @@ public class VodController extends BaseController {
 
     private Map<Integer, String> keyActionMap = new HashMap<>();
 
+    private JSONObject configJson=null;
+
     private void loadKeyMapConfig() {
         try {
             // 优先从存储根目录加载 keymap.json
@@ -1426,11 +1438,22 @@ public class VodController extends BaseController {
 
             try {
                 externalFile = new File(Environment.getExternalStorageDirectory(), "keymap.json");
+                
+                if(null!=externalFile && !externalFile.exists()) {
+                   new File(Environment.getExternalStorageDirectory(), "keymap1.json").createNewFile();
+                    
+                }
+
             } catch (Exception e) {
                 // 如果没有权限，则从 assets 加载默认配置
                 Context context = getContext();
                 try {
                     externalFile = new File(context.getFilesDir(), "keymap.json");
+
+                    if(null!=externalFile && !externalFile.exists()) {
+                   new File(Environment.getExternalStorageDirectory(), "keymap2.json").createNewFile();
+                    
+                }
                 } catch (Exception ex) {
                     
                 }
@@ -1459,7 +1482,7 @@ public class VodController extends BaseController {
             String json = new String(buffer, "UTF-8");
 
             // 解析 JSON 配置
-            JSONObject obj = new JSONObject(json);
+            configJson = new JSONObject(json);
 
             // 使用反射获取 KeyEvent 的键值对
             Field[] fields = KeyEvent.class.getDeclaredFields();
@@ -1471,11 +1494,11 @@ public class VodController extends BaseController {
             }
 
             // 替换 keySet() 方法
-            Iterator<String> keys = obj.keys();
+            Iterator<String> keys = configJson.keys();
             while (keys.hasNext()) {
                 String key = keys.next();
                 if (keyNameToCode.containsKey(key)) {
-                    keyActionMap.put(keyNameToCode.get(key), obj.getString(key));
+                    keyActionMap.put(keyNameToCode.get(key), configJson.getString(key));
                 }
             }
 

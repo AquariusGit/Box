@@ -32,7 +32,9 @@
   "KEYCODE_0": "togglePlay",
   "KEYCODE_2": "togglePlay",
   "KEYCODE_5": "togglePlay",
-   "KEYCODE_8": "togglePlay",
+  "KEYCODE_8": "togglePlay",
 
-  "KEYCODE_DPAD_UP": "showBottom" 
+  "KEYCODE_DPAD_UP": "showBottom",
+
+  "step": "5000"
 }
