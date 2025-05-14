@@ -390,7 +390,7 @@ public abstract class BaseController extends BaseVideoController implements Gest
         mSeekPosition = position;
     }
 
-    protected long getStep(){
+    protected int getStep(){
         return 5000;
     }
 
