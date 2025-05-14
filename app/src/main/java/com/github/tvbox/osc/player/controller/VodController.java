@@ -1213,18 +1213,11 @@ public class VodController extends BaseController {
             return;
 
         long currentTime = System.currentTimeMillis();
-        int baseSkip = 5000; // 基础跳转5秒
+        int baseSkip = this.getStep(); // 基础跳转5秒
         final float accelerationFactor = 1.5f; // 连续操作时的加速因子
         final long threshold = 500; // 操作间隔阈值500ms
 
-        try{
-            if (this.configJson != null) {
-                string stepString = configJson.getString("step");
-                baseSkip= Integer.parseInt(stepString);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        
        
 
         if (!simSlideStart) {
@@ -1614,6 +1607,20 @@ public class VodController extends BaseController {
             }
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    protected int getStep() {
+        try{
+            if (this.configJson != null) {
+                String stepString = configJson.getString("step");
+                return Integer.parseInt(stepString);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return 5000;
     }
 
     @Override

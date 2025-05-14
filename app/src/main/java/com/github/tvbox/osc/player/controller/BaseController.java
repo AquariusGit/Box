@@ -380,14 +380,18 @@ public abstract class BaseController extends BaseVideoController implements Gest
         }
 
         if(position>0){
-            position=currentPosition+4000;
+            position=currentPosition+getStep();
         }
         else{
-            position=currentPosition-4000;
+            position=currentPosition-getStep();
         }
         
         updateSeekUI(currentPosition, position, duration);
         mSeekPosition = position;
+    }
+
+    protected long getStep(){
+        return 5000;
     }
 
     protected void updateSeekUI(int curr, int seekTo, int duration) {
