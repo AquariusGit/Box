@@ -55,6 +55,7 @@ import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -1420,11 +1421,14 @@ public class VodController extends BaseController {
     private boolean isPaused = false;
     private boolean isKeyUp = false;
 
-    private Map<Integer, String> keyActionMap = new HashMap<>();
+    private Map<Integer, String> keyActionMap;
 
-    private JSONObject configJson=null;
+    private JSONObject configJson;
 
     private void loadKeyMapConfig() {
+
+        keyActionMap = new HashMap<>();
+
         try {
             // 优先从存储根目录加载 keymap.json
             Context context = getContext();
@@ -1604,13 +1608,13 @@ public class VodController extends BaseController {
         try{
             if (this.configJson != null) {
                 String stepString = configJson.getString("step");
-                return Integer.parseInt(stepString);
+                return NumberUtils.toInt(stepString,5000);
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        return 5000;
+        return super.getStep();
     }
 
     @Override
