@@ -1427,27 +1427,18 @@ public class VodController extends BaseController {
     private void loadKeyMapConfig() {
         try {
             // 优先从存储根目录加载 keymap.json
+            Context context = getContext();
             File externalFile=null;
 
             try {
-                externalFile = new File(Environment.getExternalStorageDirectory(), "keymap.json");
-                
-                if(null!=externalFile && !externalFile.exists()) {
-                   new File(Environment.getExternalStorageDirectory(), "keymap1.json").createNewFile();
-                    
-                }
+                externalFile = new File(Environment.getExternalStorageDirectory(), "tvbox_backup/keymap.json");
 
             } catch (Exception e) {
                 // 如果没有权限，则从 assets 加载默认配置
-                Context context = getContext();
+
                 try {
                     externalFile = new File(context.getFilesDir(), "keymap.json");
 
-                    if(null!=externalFile && !externalFile.exists()) {                        
-                        new File(context.getFilesDir(), "keymap2.json").createNewFile();
-                        new File(Environment.getDataDirectory(), "keymap4.json").createNewFile();
-
-                    }
                 } catch (Exception ex) {
                     
                 }
@@ -1459,12 +1450,10 @@ public class VodController extends BaseController {
                     is = new FileInputStream(externalFile);
                 } catch (Exception e) {
                      // 如果存储根目录没有文件，则从 assets 加载默认配置
-                    Context context = getContext();
                     is = context.getAssets().open("keymap.json");
                 }              
             } else {
                 // 如果存储根目录没有文件，则从 assets 加载默认配置
-                Context context = getContext();
                 is = context.getAssets().open("keymap.json");
             }
 
