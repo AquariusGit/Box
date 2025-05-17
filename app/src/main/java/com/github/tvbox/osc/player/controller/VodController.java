@@ -55,12 +55,15 @@ import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -356,7 +359,11 @@ public class VodController extends BaseController {
     protected void initView() {
         super.initView();
 
-        loadKeyMapConfig();
+        try {
+            loadKeyMapConfig();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // top container
         mTopHide = findViewById(R.id.top_container_hide);
@@ -755,13 +762,13 @@ public class VodController extends BaseController {
                     }, new DiffUtil.ItemCallback<Integer>() {
                         @Override
                         public boolean areItemsTheSame(@NonNull @NotNull Integer oldItem,
-                                @NonNull @NotNull Integer newItem) {
+                                                       @NonNull @NotNull Integer newItem) {
                             return oldItem.intValue() == newItem.intValue();
                         }
 
                         @Override
                         public boolean areContentsTheSame(@NonNull @NotNull Integer oldItem,
-                                @NonNull @NotNull Integer newItem) {
+                                                          @NonNull @NotNull Integer newItem) {
                             return oldItem.intValue() == newItem.intValue();
                         }
                     }, players, defaultPos);
@@ -1214,12 +1221,9 @@ public class VodController extends BaseController {
             return;
 
         long currentTime = System.currentTimeMillis();
-        int baseSkip = this.getStep(); // 基础跳转5秒
+        final int baseSkip = this.getStep(); // 基础跳转10秒
         final float accelerationFactor = 1.5f; // 连续操作时的加速因子
         final long threshold = 500; // 操作间隔阈值500ms
-
-        
-       
 
         if (!simSlideStart) {
             simSlideStart = true;
@@ -1234,10 +1238,8 @@ public class VodController extends BaseController {
         lastSlideTime = currentTime;
         int currentPosition = (int) mControlWrapper.getCurrentPosition();
         int position = (int) (currentPosition + simSlideOffset);
-        if (position > duration)
-            position = duration;
-        if (position < 0)
-            position = 0;
+        if (position > duration) position = duration;
+        if (position < 0) position = 0;
         updateSeekUI(currentPosition, position, duration);
         simSeekPosition = position;
     }
@@ -1425,73 +1427,70 @@ public class VodController extends BaseController {
 
     private JSONObject configJson;
 
-    private void loadKeyMapConfig() {
+    private void loadKeyMapConfig() throws Exception {
 
         keyActionMap = new HashMap<>();
 
+        // 优先从存储根目录加载 keymap.json
+        Context context = getContext();
+        File externalFile=null;
+
         try {
-            // 优先从存储根目录加载 keymap.json
-            Context context = getContext();
-            File externalFile=null;
+            externalFile = new File(context.getExternalFilesDir("config").getAbsolutePath(), "keymap.json");
+        } catch (Exception e) {
+            //Nothing to do
+        }
 
-            try {
+        try {
+            if ( (null==externalFile) || (!externalFile.exists())){
                 externalFile = new File(Environment.getExternalStorageDirectory(), "tvbox_backup/keymap.json");
-
-            } catch (Exception e) {
-                // 如果没有权限，则从 assets 加载默认配置
-
-                try {
-                    externalFile = new File(context.getFilesDir(), "keymap.json");
-
-                } catch (Exception ex) {
-                    
-                }
-               
             }
-            InputStream is;
-            if ( null!=externalFile && externalFile.exists()) {
-                try {
-                    is = new FileInputStream(externalFile);
-                } catch (Exception e) {
-                     // 如果存储根目录没有文件，则从 assets 加载默认配置
-                    is = context.getAssets().open("keymap.json");
-                }              
-            } else {
+        } catch (Exception e) {
+            //Nothing to do
+        }
+
+        InputStream is;
+        if ( null!=externalFile && externalFile.exists()) {
+            try {
+                is = new FileInputStream(externalFile);
+            } catch (Exception e) {
                 // 如果存储根目录没有文件，则从 assets 加载默认配置
                 is = context.getAssets().open("keymap.json");
             }
-
-            // 读取文件内容
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            String json = new String(buffer, "UTF-8");
-
-            // 解析 JSON 配置
-            configJson = new JSONObject(json);
-
-            // 使用反射获取 KeyEvent 的键值对
-            Field[] fields = KeyEvent.class.getDeclaredFields();
-            Map<String, Integer> keyNameToCode = new HashMap<>();
-            for (Field field : fields) {
-                if (field.getName().startsWith("KEYCODE_") && field.getType() == int.class) {
-                    keyNameToCode.put(field.getName(), field.getInt(null));
-                }
-            }
-
-            // 替换 keySet() 方法
-            Iterator<String> keys = configJson.keys();
-            while (keys.hasNext()) {
-                String key = keys.next();
-                if (keyNameToCode.containsKey(key)) {
-                    keyActionMap.put(keyNameToCode.get(key), configJson.getString(key));
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } else {
+            // 如果存储根目录没有文件，则从 assets 加载默认配置
+            is = context.getAssets().open("keymap.json");
         }
+
+        // 读取文件内容
+        int size = is.available();
+        byte[] buffer = new byte[size];
+        is.read(buffer);
+        is.close();
+        String json = new String(buffer, "UTF-8");
+
+        // 解析 JSON 配置
+        configJson = new JSONObject(json);
+
+        // 使用反射获取 KeyEvent 的键值对
+        Field[] fields = KeyEvent.class.getDeclaredFields();
+        Map<String, Integer> keyNameToCode = new HashMap<>();
+        for (Field field : fields) {
+            if (field.getName().startsWith("KEYCODE_") && field.getType() == int.class) {
+                keyNameToCode.put(field.getName(), field.getInt(null));
+            }
+        }
+
+        // 替换 keySet() 方法
+        Iterator<String> keys = configJson.keys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            if (keyNameToCode.containsKey(key)) {
+                keyActionMap.put(keyNameToCode.get(key), configJson.getString(key));
+            }
+        }
+
+
     }
 
     @Override
@@ -1548,39 +1547,10 @@ public class VodController extends BaseController {
                     }
 
                 case "increaseVolume":
-                {
-                    AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
-                    int streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-                    int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-
-                    // 按 1% 的步进调整音量
-                    int step = Math.round(streamMaxVolume * 0.01f);
-                    if (step < 1) {
-                        step = 1;
-                    }
-
-                    int newVolume = Math.min(streamMaxVolume, streamVolume + step);
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0);
-                    return true;
-                }
-                    
+                    return adjustVolume(true);
 
                 case "decreaseVolume":
-                {
-                    AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
-                    int streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-                    int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-
-                    // 按 1% 的步进调整音量
-                    int step = Math.round(streamMaxVolume * 0.01f);
-                    if (step < 1) {
-                        step = 1;
-                    }
-
-                    int newVolume = Math.max(0, streamVolume - step);
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0);
-                    return true;
-                }
+                    return adjustVolume(false);
 
                 case "muteVolume":
                     if (!isBottomVisible()) {
@@ -1588,12 +1558,12 @@ public class VodController extends BaseController {
                         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 2, 0);
                         return true;
                     }
-                    
+
                 default:
                     break;
             }
         } else if (action == KeyEvent.ACTION_UP) {
-            if(this.keyActionMap.values().contains(keyCode) ) {
+            if(this.keyActionMap.containsKey(keyCode)) {
                 if (isInPlayback) {
                     tvSlideStop();
                     return true;
@@ -1601,6 +1571,26 @@ public class VodController extends BaseController {
             }
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    private boolean adjustVolume(boolean up) {
+        AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+        int streamMaxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        int streamVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+        // 按 1% 的步进调整音量
+        int step = Math.round(streamMaxVolume * 0.01f);
+        if (step < 1) {
+            step = 1;
+        }
+
+        if (!up) {
+            step=-step;
+        }
+
+        int newVolume = Math.max(0, streamVolume + step);
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0);
+        return true;
     }
 
     @Override
