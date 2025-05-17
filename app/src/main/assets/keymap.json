@@ -1,9 +1,4 @@
 {
-  "KEYCODE_VOLUME_UP": "increaseVolume",
-  "KEYCODE_VOLUME_DOWN": "decreaseVolume",
-  "KEYCODE_VOLUME_MUTE": "muteVolume",
-  "KEYCODE_DPAD_DOWN": "muteVolume",
-
   "KEYCODE_DPAD_RIGHT": "fastForward",
   "KEYCODE_MEDIA_NEXT": "fastForward",
   "KEYCODE_MEDIA_FAST_FORWARD": "fastForward",
@@ -19,6 +14,7 @@
   "KEYCODE_4": "rewind",
   "KEYCODE_7": "rewind",
   "KEYCODE_BUTTON_Y": "rewind",
+  "KEYCODE_CHANNEL_UP": "rewind",
 
   "KEYCODE_DPAD_CENTER": "togglePlay",
   "KEYCODE_ENTER": "togglePlay",
@@ -33,8 +29,11 @@
   "KEYCODE_2": "togglePlay",
   "KEYCODE_5": "togglePlay",
   "KEYCODE_8": "togglePlay",
+  "KEYCODE_CHANNEL_DOWN": "togglePlay",
+  
 
   "KEYCODE_DPAD_UP": "showBottom",
+  "KEYCODE_DPAD_DOWN": "muteVolume",
 
   "step": "5000"
 }
