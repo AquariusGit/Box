@@ -24,16 +24,18 @@
   "KEYCODE_MEDIA_PLAY": "togglePlay",
   "KEYCODE_BUTTON_B": "togglePlay",
   "KEYCODE_BUTTON_X": "togglePlay",
-  "KEYCODE_HEADSETHOOK": "togglePlay",  
+  "KEYCODE_HEADSETHOOK": "togglePlay",
   "KEYCODE_0": "togglePlay",
   "KEYCODE_2": "togglePlay",
   "KEYCODE_5": "togglePlay",
   "KEYCODE_8": "togglePlay",
   "KEYCODE_CHANNEL_DOWN": "togglePlay",
-  
+
 
   "KEYCODE_DPAD_UP": "showBottom",
   "KEYCODE_DPAD_DOWN": "muteVolume",
 
-  "step": "5000"
+  "step": "5000",
+  "location": "2",
+  "margin": "40"
 }
