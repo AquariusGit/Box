@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Message;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -57,6 +58,7 @@ import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
@@ -265,6 +267,8 @@ public class VodController extends BaseController {
     ImageView mPauseIcon;
     LinearLayout mTapSeek;
 
+    LinearLayout mPauseLayout;
+
     // progress container
     LinearLayout mProgressRoot;
     ImageView mProgressIcon;
@@ -360,7 +364,40 @@ public class VodController extends BaseController {
         super.initView();
 
         try {
+            mPauseLayout= findViewById(R.id.ll_pause);
+
             loadKeyMapConfig();
+
+            //LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
+            FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)mPauseLayout.getLayoutParams();
+            lp.bottomMargin=0;
+            lp.topMargin=0;
+
+            String location=this.configJson.optString("location","1");
+            int margin=this.configJson.optInt("margin",80);
+
+            switch (location){
+                case "2":
+                    lp.gravity= Gravity.RIGHT | Gravity.BOTTOM;
+                    lp.bottomMargin=margin;
+                    break;
+                case "3":
+                    lp.gravity= Gravity.LEFT | Gravity.BOTTOM;
+                    lp.bottomMargin=margin;
+                    break;
+                case "4":
+                    lp.gravity= Gravity.LEFT | Gravity.TOP;
+                    lp.topMargin=margin;
+                    break;
+                default:
+                    lp.gravity= Gravity.RIGHT | Gravity.TOP;
+                    lp.topMargin=margin;
+                    break;
+            }
+
+            mPauseLayout.setLayoutParams(lp);
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -377,6 +414,8 @@ public class VodController extends BaseController {
         mProgressTop = findViewById(R.id.tv_pause_container);
         mPauseIcon = findViewById(R.id.tv_pause_icon);
         mTapSeek = findViewById(R.id.ll_ddtap);
+
+
 
         // progress container
         mProgressRoot = findViewById(R.id.tv_progress_container);
