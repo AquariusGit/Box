@@ -7,8 +7,12 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.media.AudioManager;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
 import android.os.Message;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -25,8 +29,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.media.AudioManager;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.transition.TransitionManager;
@@ -37,6 +39,7 @@ import com.github.tvbox.osc.api.ApiConfig;
 import com.github.tvbox.osc.base.BaseActivity;
 import com.github.tvbox.osc.bean.IJKCode;
 import com.github.tvbox.osc.bean.ParseBean;
+import com.github.tvbox.osc.bean.VodInfo;
 import com.github.tvbox.osc.event.RefreshEvent;
 import com.github.tvbox.osc.player.thirdparty.Kodi;
 import com.github.tvbox.osc.player.thirdparty.MXPlayer;
@@ -56,44 +59,36 @@ import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.HashMap;
-
-import java.util.Set;
-import java.util.Iterator;
-import java.util.HashSet;
-
-import java.io.File;
-import java.io.InputStream;
-import java.io.FileInputStream;
-
-import java.lang.reflect.*;
-
-import 	android.os.Environment;
-
 
 import xyz.doikki.videoplayer.player.VideoView;
 import xyz.doikki.videoplayer.util.PlayerUtils;
 
 public class VodController extends BaseController {
+
+
     public VodController(@NonNull @NotNull Context context) {
         super(context);
+
+
         mHandlerCallback = new HandlerCallback() {
             @Override
             public void callback(Message msg) {
@@ -343,9 +338,23 @@ public class VodController extends BaseController {
     TvRecyclerView mGridView;
 
     // takagen99 : To get system time
-    private final Runnable mTimeRunnable=new Runnable(){@Override public void run(){Date date=new Date();SimpleDateFormat timeFormat=new SimpleDateFormat("hh:mm aa",Locale.ENGLISH);mPlayPauseTime.setText(timeFormat.format(date));mTime.setText(timeFormat.format(date));mHandler.postDelayed(this,1000);}};
+    private final Runnable mTimeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            Date date = new Date();
+            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm aa", Locale.ENGLISH);
+            mPlayPauseTime.setText(timeFormat.format(date));
+            mTime.setText(timeFormat.format(date));
+            mHandler.postDelayed(this, 1000);
+        }
+    };
 
-    private final Runnable mUpdateLayout=new Runnable(){@Override public void run(){mBottomRoot.requestLayout();}};
+    private final Runnable mUpdateLayout = new Runnable() {
+        @Override
+        public void run() {
+            mBottomRoot.requestLayout();
+        }
+    };
 
     private void showLockView() {
         mLockView.setVisibility(ScreenUtils.isTv(getContext()) ? INVISIBLE : VISIBLE);
@@ -363,44 +372,8 @@ public class VodController extends BaseController {
     protected void initView() {
         super.initView();
 
-        try {
-            mPauseLayout= findViewById(R.id.ll_pause);
-
-            loadKeyMapConfig();
-
-            //LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-            FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)mPauseLayout.getLayoutParams();
-            lp.bottomMargin=0;
-            lp.topMargin=0;
-
-            String location=this.configJson.optString("location","1");
-            int margin=this.configJson.optInt("margin",80);
-
-            switch (location){
-                case "2":
-                    lp.gravity= Gravity.RIGHT | Gravity.BOTTOM;
-                    lp.bottomMargin=margin;
-                    break;
-                case "3":
-                    lp.gravity= Gravity.LEFT | Gravity.BOTTOM;
-                    lp.bottomMargin=margin;
-                    break;
-                case "4":
-                    lp.gravity= Gravity.LEFT | Gravity.TOP;
-                    lp.topMargin=margin;
-                    break;
-                default:
-                    lp.gravity= Gravity.RIGHT | Gravity.TOP;
-                    lp.topMargin=margin;
-                    break;
-            }
-
-            mPauseLayout.setLayoutParams(lp);
 
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         // top container
         mTopHide = findViewById(R.id.top_container_hide);
@@ -414,7 +387,7 @@ public class VodController extends BaseController {
         mProgressTop = findViewById(R.id.tv_pause_container);
         mPauseIcon = findViewById(R.id.tv_pause_icon);
         mTapSeek = findViewById(R.id.ll_ddtap);
-
+        mPauseLayout = findViewById(R.id.ll_pause);
 
 
         // progress container
@@ -1069,6 +1042,50 @@ public class VodController extends BaseController {
             listener.showDanmuSetting();
         });
 
+        configPauseBarLocation();
+    }
+
+    private void configPauseBarLocation() {
+        try {
+            loadKeyMapConfig();
+
+            configWidgetLayout(mProgressRoot);
+            configWidgetLayout(mPauseLayout);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void configWidgetLayout(LinearLayout layout) {
+        LayoutParams lp = (LayoutParams) layout.getLayoutParams();
+        lp.bottomMargin = 0;
+        lp.topMargin = 0;
+
+        String location = this.configJson.optString("location", "1");
+        int margin = this.configJson.optInt("margin", 80);
+
+        switch (location) {
+            case "2":
+                lp.gravity = Gravity.LEFT | Gravity.BOTTOM;
+                lp.bottomMargin = margin;
+                break;
+            case "3":
+                lp.gravity = Gravity.RIGHT | Gravity.TOP;
+                lp.topMargin = margin;
+                break;
+            case "4":
+                lp.gravity = Gravity.LEFT | Gravity.TOP;
+                lp.topMargin = margin;
+                break;
+            default:
+                lp.gravity = Gravity.RIGHT | Gravity.BOTTOM;
+                lp.bottomMargin = margin;
+
+                break;
+        }
+
+        layout.setLayoutParams(lp);
     }
 
     public void initLandscapePortraitBtnInfo() {
@@ -1369,7 +1386,12 @@ public class VodController extends BaseController {
         mHandler.postDelayed(mHideBottomRunnable, 8000);
     }
 
-    Runnable mHideBottomRunnable=new Runnable(){@Override public void run(){hideBottom();}};
+    Runnable mHideBottomRunnable = new Runnable() {
+        @Override
+        public void run() {
+            hideBottom();
+        }
+    };
 
     public void hideBottom() {
         mHandler.removeMessages(1002);
@@ -1472,16 +1494,24 @@ public class VodController extends BaseController {
 
         // 优先从存储根目录加载 keymap.json
         Context context = getContext();
-        File externalFile=null;
+        File externalFile = null;
 
         try {
-            externalFile = new File(context.getExternalFilesDir("config").getAbsolutePath(), "keymap.json");
+            externalFile = this.computeKeymapFile();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if ((null == externalFile) || (!externalFile.exists())) {
+                externalFile = new File(context.getExternalFilesDir("config").getAbsolutePath(), "keymap.json");
+            }
         } catch (Exception e) {
             //Nothing to do
         }
 
         try {
-            if ( (null==externalFile) || (!externalFile.exists())){
+            if ((null == externalFile) || (!externalFile.exists())) {
                 externalFile = new File(Environment.getExternalStorageDirectory(), "tvbox_backup/keymap.json");
             }
         } catch (Exception e) {
@@ -1489,7 +1519,7 @@ public class VodController extends BaseController {
         }
 
         InputStream is;
-        if ( null!=externalFile && externalFile.exists()) {
+        if (null != externalFile && externalFile.exists()) {
             try {
                 is = new FileInputStream(externalFile);
             } catch (Exception e) {
@@ -1528,8 +1558,35 @@ public class VodController extends BaseController {
                 keyActionMap.put(keyNameToCode.get(key), configJson.getString(key));
             }
         }
+    }
 
+    private File computeKeymapFile() {
 
+        BaseActivity activiy = (BaseActivity) this.getContext();
+        VodInfo vodInfo = null;
+
+        Intent intent = activiy.getIntent();
+        if (intent != null && intent.getExtras() != null) {
+            Bundle bundle = intent.getExtras();
+            vodInfo = (VodInfo) bundle.getSerializable("VodInfo");
+        }
+
+        if (null != vodInfo) {
+            VodInfo.VodSeries vs = vodInfo.seriesMap.get(vodInfo.playFlag).get(vodInfo.getplayIndex());
+
+            File file = new File(vs.name);
+            if (file.exists()) {
+                file = new File(file.getParent() + "/keymap.json");
+            }
+
+            if (!file.exists()) {
+                file = new File(file.getParent() + "/keymap.json");
+            }
+
+            return file;
+        }
+
+        return null;
     }
 
     @Override
@@ -1602,7 +1659,7 @@ public class VodController extends BaseController {
                     break;
             }
         } else if (action == KeyEvent.ACTION_UP) {
-            if(this.keyActionMap.containsKey(keyCode)) {
+            if (this.keyActionMap.containsKey(keyCode)) {
                 if (isInPlayback) {
                     tvSlideStop();
                     return true;
@@ -1624,7 +1681,7 @@ public class VodController extends BaseController {
         }
 
         if (!up) {
-            step=-step;
+            step = -step;
         }
 
         int newVolume = Math.max(0, streamVolume + step);
@@ -1634,10 +1691,10 @@ public class VodController extends BaseController {
 
     @Override
     protected int getStep() {
-        try{
+        try {
             if (this.configJson != null) {
                 String stepString = configJson.getString("step");
-                return NumberUtils.toInt(stepString,5000);
+                return NumberUtils.toInt(stepString, 5000);
             }
         } catch (JSONException e) {
             e.printStackTrace();
