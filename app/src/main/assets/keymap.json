@@ -36,6 +36,5 @@
   "KEYCODE_DPAD_DOWN": "muteVolume",
 
   "step": "5000",
-  "location": "2",
   "margin": "40"
 }
