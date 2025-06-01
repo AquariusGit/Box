@@ -1608,7 +1608,7 @@ public class VodController extends BaseController {
             String actionName = keyActionMap.get(keyCode);
 
             if (null == actionName) {
-                return false;
+                actionName="";
             }
 
             switch (actionName) {
@@ -1649,14 +1649,13 @@ public class VodController extends BaseController {
                     return adjustVolume(false);
 
                 case "muteVolume":
-                    if (!isBottomVisible()) {
-                        AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
-                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 2, 0);
-                        return true;
-                    }
+                    return muteVolume();
+
+                case "showBottom":
+                    showBottom();
+                    return true;
 
                 default:
-                    showBottom();
                     break;
             }
         } else if (action == KeyEvent.ACTION_UP) {
@@ -1668,6 +1667,15 @@ public class VodController extends BaseController {
             }
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    private boolean muteVolume() {
+        if (!isBottomVisible()) {
+            AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 2, 0);
+            return true;
+        }
+        return false;
     }
 
     private boolean adjustVolume(boolean up) {
