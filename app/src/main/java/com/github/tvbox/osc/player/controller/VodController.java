@@ -1656,6 +1656,7 @@ public class VodController extends BaseController {
                     }
 
                 default:
+                    showBottom();
                     break;
             }
         } else if (action == KeyEvent.ACTION_UP) {
