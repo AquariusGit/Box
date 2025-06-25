@@ -1557,6 +1557,10 @@ public class VodController extends BaseController {
             if (keyNameToCode.containsKey(key)) {
                 keyActionMap.put(keyNameToCode.get(key), configJson.getString(key));
             }
+
+            if(NumberUtils.isCreatable(key)){
+                keyActionMap.put(NumberUtils.toInt(key), configJson.getString(key));
+            };
         }
     }
 
