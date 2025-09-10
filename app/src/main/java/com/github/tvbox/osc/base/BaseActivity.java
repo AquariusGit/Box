@@ -111,6 +111,13 @@ public abstract class BaseActivity extends AppCompatActivity implements CustomAd
         super.onResume();
         hideSystemUI(true);
         changeWallpaper(false);
+
+        // 全局隐藏鼠标光标
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            getWindow().getDecorView().setPointerIcon(
+                    android.view.PointerIcon.getSystemIcon(this, android.view.PointerIcon.TYPE_NULL)
+            );
+        }
     }
 
     // takagen99 : Check for Gesture or 3-Buttons NavBar
