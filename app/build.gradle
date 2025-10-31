@@ -36,7 +36,8 @@ android {
 
         }
     }
-    flavorDimensions +=[ "abi","brand" ]
+    //flavorDimensions +=[ "abi","brand" ]
+    flavorDimensions +=[ "abi"]
     productFlavors {
         armeabi {
             dimension = "abi"
