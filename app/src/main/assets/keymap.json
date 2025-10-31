@@ -31,7 +31,7 @@
   "KEYCODE_8": "togglePlay",
   "KEYCODE_CHANNEL_DOWN": "togglePlay",
 
-  "KEYCODE_DPAD_UP": "showBottom",
+  "KEYCODE_DPAD_UP": "screenshot",
   "KEYCODE_DPAD_DOWN": "showBottom",
 
   "step": "5000",
