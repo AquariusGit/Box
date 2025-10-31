@@ -1975,6 +1975,21 @@ public class VodController extends BaseController {
         }
     }
 
+    private View findVideoRenderingView(View root) {
+        if (root == null) return null;
+        if (root instanceof android.view.TextureView || root instanceof android.view.SurfaceView) {
+            return root;
+        }
+        if (root instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) root;
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                View found = findVideoRenderingView(vg.getChildAt(i));
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
     private void takeScreenshot() {
         try {
             final View decorView = mActivity.getWindow().getDecorView();
@@ -1984,7 +1999,36 @@ public class VodController extends BaseController {
                 Toast.makeText(getContext(), "截图失败：窗口尺寸异常", Toast.LENGTH_SHORT).show();
                 return;
             }
+
+            // 先尝试寻找用于渲染视频的视图（TextureView 或 SurfaceView）
+            final View renderView = findVideoRenderingView(decorView);
+
             final Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+            if (renderView instanceof android.view.TextureView) {
+                // TextureView 可以直接拿 bitmap
+                Bitmap texBmp = ((android.view.TextureView) renderView).getBitmap();
+                if (texBmp != null) {
+                    saveBitmapToFile(texBmp);
+                    return;
+                }
+            } else if (renderView instanceof android.view.SurfaceView && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // SurfaceView：使用 PixelCopy 直接拷贝 SurfaceView 内容
+                final android.view.SurfaceView sv = (android.view.SurfaceView) renderView;
+                final HandlerThread handlerThread = new HandlerThread("PixelCopyThread");
+                handlerThread.start();
+                PixelCopy.request(sv, bitmap, copyResult -> {
+                    handlerThread.quitSafely();
+                    if (copyResult == PixelCopy.SUCCESS) {
+                        saveBitmapToFile(bitmap);
+                    } else {
+                        Toast.makeText(getContext(), "截图失败：PixelCopy 错误 " + copyResult, Toast.LENGTH_SHORT).show();
+                    }
+                }, new Handler(handlerThread.getLooper()));
+                return;
+            }
+
+            // Fallback: Window 级别的 PixelCopy（API >= O）
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 final Rect rect = new Rect(0, 0, width, height);
                 final HandlerThread handlerThread = new HandlerThread("PixelCopyThread");
@@ -1994,11 +2038,11 @@ public class VodController extends BaseController {
                     if (copyResult == PixelCopy.SUCCESS) {
                         saveBitmapToFile(bitmap);
                     } else {
-                        Toast.makeText(getContext(), "截图失败（PixelCopy）", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "截图失败：PixelCopy 错误 " + copyResult, Toast.LENGTH_SHORT).show();
                     }
                 }, new Handler(handlerThread.getLooper()));
             } else {
-                // 低版本回退：直接 draw（对 SurfaceView 无效，但可在许多设备上工作）
+                // 低版本回退：直接 draw（对 SurfaceView 无效）
                 Canvas canvas = new Canvas(bitmap);
                 decorView.draw(canvas);
                 saveBitmapToFile(bitmap);
@@ -2040,6 +2084,7 @@ public class VodController extends BaseController {
                 } catch (Exception ignored) {
                 }
             }
+            // 可选：不强制 recycle，因为传出的 bitmap 可能还在使用
         }
     }
 
