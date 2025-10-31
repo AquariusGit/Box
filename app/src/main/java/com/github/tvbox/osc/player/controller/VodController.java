@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.view.PixelCopy;
 import android.net.Uri;
 import java.io.FileOutputStream;
@@ -2076,10 +2077,16 @@ public class VodController extends BaseController {
             }
 
             final String savedPath = outFile.getAbsolutePath();
+            final String savedFileName = outFile.getName(); // 获取文件名
             // 在主线程显示 Toast
-            new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
-                    Toast.makeText(getContext(), "已保存到: " + savedPath, Toast.LENGTH_SHORT).show()
+            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getContext(), "已保存: " + savedFileName, Toast.LENGTH_SHORT).show()
             );
+
+//            final String savedPath = outFile.getAbsolutePath();
+//            // 在主线程显示 Toast
+//            new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
+//                    Toast.makeText(getContext(), "已保存到: " + savedPath, Toast.LENGTH_SHORT).show()
+//            );
         } catch (Exception e) {
             e.printStackTrace();
             // 在主线程显示失败提示
