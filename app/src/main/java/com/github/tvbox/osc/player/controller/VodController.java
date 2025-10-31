@@ -96,6 +96,10 @@ import xyz.doikki.videoplayer.util.PlayerUtils;
 
 public class VodController extends BaseController {
 
+    private boolean autoPauseScheduled = false;
+    private Runnable autoPauseRunnable;
+    private int autoPauseSeconds = 600; // 默认 300 秒，可通过 configJson 中的 autoPauseSeconds 覆盖
+
 
     public VodController(@NonNull @NotNull Context context) {
         super(context);
@@ -1675,6 +1679,9 @@ public class VodController extends BaseController {
                     showBottom();
                     return true;
 
+                case "setPauseTimer":
+                    setPauseTimer();
+                    return true;
                 default:
                     break;
             }
@@ -1687,6 +1694,45 @@ public class VodController extends BaseController {
             }
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    private void setPauseTimer() {
+        try {
+            // 如果 configJson 中有配置，使用之（可选）
+            if (configJson != null && configJson.has("autoPauseSeconds")) {
+                autoPauseSeconds = configJson.getInt("autoPauseSeconds");
+            }
+        } catch (JSONException ignored) {
+        }
+
+        if (!autoPauseScheduled) {
+            // 安排自动暂停
+            autoPauseRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (mControlWrapper != null && mControlWrapper.isPlaying()) {
+                            mControlWrapper.pause();
+                            Toast.makeText(getContext(), "已自动暂停播放", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        autoPauseScheduled = false;
+                    }
+                }
+            };
+            mHandler.postDelayed(autoPauseRunnable, autoPauseSeconds * 1000L);
+            autoPauseScheduled = true;
+            Toast.makeText(getContext(), "将在 " + autoPauseSeconds + " 秒后自动暂停，重复按键可取消", Toast.LENGTH_SHORT).show();
+        } else {
+            // 取消定时
+            if (autoPauseRunnable != null) {
+                mHandler.removeCallbacks(autoPauseRunnable);
+            }
+            autoPauseScheduled = false;
+            Toast.makeText(getContext(), "已取消自动暂停", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private boolean muteVolume() {
