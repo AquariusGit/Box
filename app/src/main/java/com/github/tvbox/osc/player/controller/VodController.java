@@ -1,5 +1,17 @@
 package com.github.tvbox.osc.player.controller;
 
+// Java
+// 在文件顶部 imports 区添加：
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.view.PixelCopy;
+import android.net.Uri;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+
 import static xyz.doikki.videoplayer.util.PlayerUtils.stringForTimeVod;
 
 import android.animation.Animator;
@@ -1655,6 +1667,10 @@ public class VodController extends BaseController {
                 case "muteVolume":
                     return muteVolume();
 
+                case "screenshot":
+                    takeScreenshot();
+                    return true;
+
                 case "showBottom":
                     showBottom();
                     return true;
@@ -1910,6 +1926,74 @@ public class VodController extends BaseController {
             mDanmuSetting.setVisibility(VISIBLE);
         } else {
             mDanmuSetting.setVisibility(GONE);
+        }
+    }
+
+    private void takeScreenshot() {
+        try {
+            final View decorView = mActivity.getWindow().getDecorView();
+            final int width = decorView.getWidth();
+            final int height = decorView.getHeight();
+            if (width == 0 || height == 0) {
+                Toast.makeText(getContext(), "截图失败：窗口尺寸异常", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            final Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                final Rect rect = new Rect(0, 0, width, height);
+                final HandlerThread handlerThread = new HandlerThread("PixelCopyThread");
+                handlerThread.start();
+                PixelCopy.request(mActivity.getWindow(), rect, bitmap, copyResult -> {
+                    handlerThread.quitSafely();
+                    if (copyResult == PixelCopy.SUCCESS) {
+                        saveBitmapToFile(bitmap);
+                    } else {
+                        Toast.makeText(getContext(), "截图失败（PixelCopy）", Toast.LENGTH_SHORT).show();
+                    }
+                }, new Handler(handlerThread.getLooper()));
+            } else {
+                // 低版本回退：直接 draw（对 SurfaceView 无效，但可在许多设备上工作）
+                Canvas canvas = new Canvas(bitmap);
+                decorView.draw(canvas);
+                saveBitmapToFile(bitmap);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "截图异常", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void saveBitmapToFile(Bitmap bitmap) {
+        FileOutputStream out = null;
+        try {
+            File picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            File destDir = new File(picturesDir, "tvbox_screenshots");
+            if (!destDir.exists()) destDir.mkdirs();
+            String fname = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()) + ".png";
+            File outFile = new File(destDir, fname);
+            out = new FileOutputStream(outFile);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+
+            // 触发媒体库扫描（使图片在相册中可见）
+            try {
+                Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                scanIntent.setData(Uri.fromFile(outFile));
+                getContext().sendBroadcast(scanIntent);
+            } catch (Exception ignored) {
+            }
+
+            Toast.makeText(getContext(), "截图已保存: " + outFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "保存截图失败", Toast.LENGTH_SHORT).show();
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (Exception ignored) {
+                }
+            }
         }
     }
 
