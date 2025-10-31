@@ -2059,7 +2059,9 @@ public class VodController extends BaseController {
             File picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
             File destDir = new File(picturesDir, "tvbox_screenshots");
             if (!destDir.exists()) destDir.mkdirs();
-            String fname = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()) + ".png";
+
+            String fname = computeScreenShotFileName();
+
             File outFile = new File(destDir, fname);
             out = new FileOutputStream(outFile);
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
@@ -2086,6 +2088,30 @@ public class VodController extends BaseController {
             }
             // 可选：不强制 recycle，因为传出的 bitmap 可能还在使用
         }
+    }
+
+    @NonNull
+    private String computeScreenShotFileName() {
+        String rawTitle = (mPlayTitle != null && mPlayTitle.getText() != null)
+                ? mPlayTitle.getText().toString() : "screenshot";
+        // 去除可能的路径部分（取最后一段文件名/标题）
+        String baseTitle = new File(rawTitle).getName();
+        // 替换文件名中非法字符为下划线，避免路径分隔符和保留字符
+        baseTitle = baseTitle.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+        // 可选：限制长度，防止文件名过长（例如 100 个字符）
+        if (baseTitle.length() > 100) {
+            baseTitle = baseTitle.substring(0, 100);
+        }
+
+        // 使用当前播放时间（hh_mm_ss）作为文件名的一部分
+        int posMs = (mControlWrapper != null) ? (int) mControlWrapper.getCurrentPosition() : 0;
+        long totalSeconds = posMs / 1000L;
+        long hh = totalSeconds / 3600;
+        long mm = (totalSeconds % 3600) / 60;
+        long ss = totalSeconds % 60;
+        String playTime = String.format(Locale.getDefault(), "%02d_%02d_%02d", hh, mm, ss);
+        String fname = baseTitle + "_" + playTime + ".png";
+        return fname;
     }
 
     public void setHasDanmu(boolean hasDanmu) {
