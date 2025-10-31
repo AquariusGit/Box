@@ -47,9 +47,17 @@ jobs:
         with:
           name: com.github.tvbox.osc
           path: ${{ github.workspace }}/apk/*
-      
-      - name: Upload apk To Artifact
+
+      - name: Upload armeabi To Artifact 
         uses: actions/upload-artifact@v4
         with:
-          name: com.github.tvbox.osc
+          name: com.github.tvbox.osc-armeabi
           path: ${{ github.workspace }}/apk/*armeabi*.apk
+
+      - name: Upload arm64 To Artifact 
+        uses: actions/upload-artifact@v4
+        with:
+          name: com.github.tvbox.osc-arm64
+          path: ${{ github.workspace }}/apk/*arm64*.apk
+      
+     
