@@ -32,7 +32,7 @@
   "KEYCODE_CHANNEL_DOWN": "togglePlay",
 
   "KEYCODE_DPAD_UP": "screenshot",
-  "KEYCODE_DPAD_DOWN": "showBottom",
+  "KEYCODE_DPAD_DOWN": "setPauseTimer",
 
   "step": "5000",
   "margin": "40"
