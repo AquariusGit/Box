@@ -2064,7 +2064,7 @@ public class VodController extends BaseController {
 
             File outFile = new File(destDir, fname);
             out = new FileOutputStream(outFile);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
             out.flush();
 
             // 触发媒体库扫描（使图片在相册中可见）
@@ -2075,10 +2075,17 @@ public class VodController extends BaseController {
             } catch (Exception ignored) {
             }
 
-            Toast.makeText(getContext(), "截图已保存: " + outFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+            final String savedPath = outFile.getAbsolutePath();
+            // 在主线程显示 Toast
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
+                    Toast.makeText(getContext(), "已保存到: " + savedPath, Toast.LENGTH_SHORT).show()
+            );
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(getContext(), "保存截图失败", Toast.LENGTH_SHORT).show();
+            // 在主线程显示失败提示
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
+                    Toast.makeText(getContext(), "保存截图失败", Toast.LENGTH_SHORT).show()
+            );
         } finally {
             if (out != null) {
                 try {
@@ -2086,7 +2093,7 @@ public class VodController extends BaseController {
                 } catch (Exception ignored) {
                 }
             }
-            // 可选：不强制 recycle，因为传出的 bitmap 可能还在使用
+            // 不强制 recycle，因为传出的 bitmap 可能还在使用
         }
     }
 
@@ -2095,12 +2102,17 @@ public class VodController extends BaseController {
         String rawTitle = (mPlayTitle != null && mPlayTitle.getText() != null)
                 ? mPlayTitle.getText().toString() : "screenshot";
         // 去除可能的路径部分（取最后一段文件名/标题）
+        // 去除可能的路径部分（取最后一段文件名/标题）
         String baseTitle = new File(rawTitle).getName();
-        // 替换文件名中非法字符为下划线，避免路径分隔符和保留字符
-        baseTitle = baseTitle.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+        // 去除扩展名（如果存在），只保留最后一个 '.' 之前的部分
+        int lastDot = baseTitle.lastIndexOf('.');
+        if (lastDot > 0) {
+            baseTitle = baseTitle.substring(0, lastDot);
+        }
+
         // 可选：限制长度，防止文件名过长（例如 100 个字符）
-        if (baseTitle.length() > 100) {
-            baseTitle = baseTitle.substring(0, 100);
+        if (baseTitle.length() > 40) {
+            baseTitle = baseTitle.substring(0, 40);
         }
 
         // 使用当前播放时间（hh_mm_ss）作为文件名的一部分
