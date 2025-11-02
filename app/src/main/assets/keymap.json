@@ -34,6 +34,8 @@
   "KEYCODE_DPAD_UP": "screenshot",
   "KEYCODE_DPAD_DOWN": "setPauseTimer",
 
+  "KEYCODE_MENU": "adjustStep",
+
   "step": "5000",
   "margin": "40"
 }
