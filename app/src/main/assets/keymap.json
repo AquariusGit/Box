@@ -31,10 +31,11 @@
   "KEYCODE_8": "togglePlay",
   "KEYCODE_CHANNEL_DOWN": "togglePlay",
 
-  "KEYCODE_DPAD_UP": "screenshot",
-  "KEYCODE_DPAD_DOWN": "setPauseTimer",
+  "KEYCODE_DPAD_UP": "setPauseTimer",
+  "KEYCODE_DPAD_DOWN": "adjustStep",
 
-  "KEYCODE_MENU": "adjustStep",
+  "KEYCODE_MENU": "screenshot",
+  "KEYCODE_SEARCH": "screenshot",
 
   "step": "5000",
   "margin": "40"
