@@ -9,6 +9,7 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.view.InputDevice;
 import android.view.PixelCopy;
 import android.net.Uri;
 
@@ -2174,4 +2175,23 @@ public class VodController extends BaseController {
     public void setHasDanmu(boolean hasDanmu) {
         this.hasDanmu = hasDanmu;
     }
+
+    @Override
+    public boolean dispatchGenericMotionEvent(MotionEvent event) {
+        // 屏蔽鼠标移动、滚轮等事件
+        if ((event.getSource() & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE) {
+            return true; // 消费事件
+        }
+        return super.dispatchGenericMotionEvent(event);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        // 屏蔽鼠标点击事件（如果鼠标模拟为触摸）
+        if ((event.getSource() & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE) {
+            return true;
+        }
+        return super.dispatchTouchEvent(event);
+    }
+
 }
