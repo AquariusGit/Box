@@ -2031,11 +2031,25 @@ public class VodController extends BaseController {
         }
     }
 
+    // 在 VodController 类中添加成员变量
+    private long lastScreenshotTime = 0;
+    private static final long SCREENSHOT_INTERVAL = 3000; // 3秒间隔
+
     private void doTakeScreenshot() throws Exception {
+        // 检查截图间隔时间
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastScreenshotTime < SCREENSHOT_INTERVAL) {
+            return;
+        }
+
+        // 更新最后截图时间
+        lastScreenshotTime = currentTime;
 
         final View decorView = mActivity.getWindow().getDecorView();
         final int width = decorView.getWidth();
         final int height = decorView.getHeight();
+
+
         if (width == 0 || height == 0) {
             new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getContext(), "截图失败：窗口尺寸异常", Toast.LENGTH_SHORT).show()
             );
