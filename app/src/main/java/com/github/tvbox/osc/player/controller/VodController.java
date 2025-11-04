@@ -3,6 +3,12 @@ package com.github.tvbox.osc.player.controller;
 // Java
 // 在文件顶部 imports 区添加：
 
+import android.app.UiModeManager;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -1503,13 +1509,18 @@ public class VodController extends BaseController {
     private boolean isPaused = false;
     private boolean isKeyUp = false;
 
-    private Map<Integer, String> keyActionMap;
+    private Map<Integer, Long> keyPressTimes = new HashMap<>();
+    private int KEY_REPEAT_INTERVAL = 600; // 1000ms 连击间隔
+
+    // 在 VodController 类中添加成员变量
+    private long lastScreenshotTime = 0;
+
+    private int SCREENSHOT_INTERVAL = 2000; // 3秒间隔
 
     private JSONObject configJson;
 
     private void loadKeyMapConfig() throws Exception {
 
-        keyActionMap = new HashMap<>();
 
         // 优先从存储根目录加载 keymap.json
         Context context = getContext();
@@ -1560,33 +1571,19 @@ public class VodController extends BaseController {
         // 解析 JSON 配置
         configJson = new JSONObject(json);
 
-        // 使用反射获取 KeyEvent 的键值对
-        Field[] fields = KeyEvent.class.getDeclaredFields();
-        Map<String, Integer> keyNameToCode = new HashMap<>();
-        for (Field field : fields) {
-            if (field.getName().startsWith("KEYCODE_") && field.getType() == int.class) {
-                keyNameToCode.put(field.getName(), field.getInt(null));
-            }
-        }
-
-        // 替换 keySet() 方法
-        Iterator<String> keys = configJson.keys();
-        while (keys.hasNext()) {
-            String key = keys.next();
-            if (keyNameToCode.containsKey(key)) {
-                keyActionMap.put(keyNameToCode.get(key), configJson.getString(key));
-            }
-
-            if (NumberUtils.isCreatable(key)) {
-                keyActionMap.put(NumberUtils.toInt(key), configJson.getString(key));
-            }
-        }
 
         String stepString = configJson.getString("step");
         int step= NumberUtils.toInt(stepString, 5000);
 
         if(defaultStep<0)
             defaultStep=step;
+
+        String repeatInterval = configJson.getString("repeat_interval");
+        KEY_REPEAT_INTERVAL= NumberUtils.toInt(stepString, 600);
+
+        String screenshotInterval = configJson.getString("screenshot_interval");
+        SCREENSHOT_INTERVAL= NumberUtils.toInt(stepString, 2000);
+
     }
 
     private File computeKeymapFile() {
@@ -1624,9 +1621,22 @@ public class VodController extends BaseController {
         int action = event.getAction();
         boolean isInPlayback = isInPlaybackState();
 
+        // 检查按键连击间隔
+        if (action == KeyEvent.ACTION_DOWN) {
+            long currentTime = System.currentTimeMillis();
+            Long lastPressTime = keyPressTimes.get(keyCode);
+            if (lastPressTime != null && (currentTime - lastPressTime) < KEY_REPEAT_INTERVAL) {
+                // 间隔太短，忽略此次按键
+                return true;
+            }
+            // 记录按键时间
+            keyPressTimes.put(keyCode, currentTime);
+        }
+
         if (super.onKeyEvent(event)) {
             return true;
         }
+
         if (isBottomVisible()) {
             mHandler.removeCallbacks(mHideBottomRunnable);
             mHandler.postDelayed(mHideBottomRunnable, 8000);
@@ -1634,7 +1644,8 @@ public class VodController extends BaseController {
         }
         if (action == KeyEvent.ACTION_DOWN) {
 
-            String actionName = keyActionMap.get(keyCode);
+            String keyName = KeyEvent.keyCodeToString(keyCode);
+            String actionName=this.configJson.optString(keyName);
 
             if (null == actionName) {
                 actionName = "";
@@ -1699,7 +1710,8 @@ public class VodController extends BaseController {
                     break;
             }
         } else if (action == KeyEvent.ACTION_UP) {
-            if (this.keyActionMap.containsKey(keyCode)) {
+            String keyName = KeyEvent.keyCodeToString(keyCode);
+            if (this.configJson.has(keyName)) {
                 if (isInPlayback) {
                     tvSlideStop();
                     return true;
@@ -2031,9 +2043,7 @@ public class VodController extends BaseController {
         }
     }
 
-    // 在 VodController 类中添加成员变量
-    private long lastScreenshotTime = 0;
-    private static final long SCREENSHOT_INTERVAL = 3000; // 3秒间隔
+
 
     private void doTakeScreenshot() throws Exception {
         // 检查截图间隔时间
