@@ -1,5 +1,11 @@
 package xyz.doikki.videoplayer.exo;
 
+import android.app.UiModeManager;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -18,6 +24,7 @@ import androidx.media3.exoplayer.DefaultLoadControl;
 import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.LoadControl;
+import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.trackselection.TrackSelectionArray;
@@ -251,6 +258,17 @@ public class ExoMediaPlayer extends AbstractPlayer implements Player.Listener {
 
     @Override
     public void setOptions() {
+        mMediaPlayer.setSeekParameters(SeekParameters.CLOSEST_SYNC);
+
+        try {
+            if(isRunningOnTV(mAppContext)){
+                float volumePercent = 0.3f;
+                mMediaPlayer.setVolume(volumePercent);
+            }
+        } catch (Throwable e) {
+            //Nothing to do
+        }
+
         //准备好就开始播放
         mMediaPlayer.setPlayWhenReady(true);
     }
@@ -371,4 +389,15 @@ public class ExoMediaPlayer extends AbstractPlayer implements Player.Listener {
             }
         }
     }
+
+    public static boolean isRunningOnTV(Context context) {
+        UiModeManager uiModeManager = (UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE);
+        boolean isTvMode = uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION;
+
+        PackageManager packageManager = context.getPackageManager();
+        boolean hasLeanback = packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK);
+
+        return isTvMode || hasLeanback;
+    }
+
 }
