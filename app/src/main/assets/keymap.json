@@ -38,5 +38,8 @@
   "KEYCODE_SEARCH": "screenshot",
 
   "step": "5000",
-  "margin": "40"
+  "margin": "40",
+  "repeat_interval":"600",
+  "screenshot_interval":"2000"
+
 }
