@@ -1553,7 +1553,7 @@ public class VodController extends BaseController {
 
         if (null==is) {
             // 从 assets 加载默认配置
-            if(PlayerUtils.isTvMode(context)){
+            if(PlayerUtils.isRunningOnTV(context)){
                 is = context.getAssets().open("tv_keymap.json");
             }else{
                 is = context.getAssets().open("keymap.json");
