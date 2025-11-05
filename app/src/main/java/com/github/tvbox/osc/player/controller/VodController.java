@@ -1542,7 +1542,7 @@ public class VodController extends BaseController {
             //Nothing to do
         }
 
-        InputStream is;
+        InputStream is=null;
         if (null != externalFile && externalFile.exists()) {
             try {
                 is = new FileInputStream(externalFile);
