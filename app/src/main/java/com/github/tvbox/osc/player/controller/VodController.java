@@ -1,13 +1,5 @@
 package com.github.tvbox.osc.player.controller;
 
-// Java
-// 在文件顶部 imports 区添加：
-
-import android.app.UiModeManager;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -1517,6 +1509,8 @@ public class VodController extends BaseController {
 
     private int SCREENSHOT_INTERVAL = 2000; // 3秒间隔
 
+    private String REPEAT_INTERVAL_KEYS;
+
     private JSONObject configJson;
 
     private void loadKeyMapConfig() throws Exception {
@@ -1532,13 +1526,13 @@ public class VodController extends BaseController {
             e.printStackTrace();
         }
 
-        try {
-            if ((null == externalFile) || (!externalFile.exists())) {
-                externalFile = new File(context.getExternalFilesDir("config").getAbsolutePath(), "keymap.json");
-            }
-        } catch (Exception e) {
-            //Nothing to do
-        }
+        // try {
+        //     if ((null == externalFile) || (!externalFile.exists())) {
+        //         externalFile = new File(context.getExternalFilesDir("config").getAbsolutePath(), "keymap.json");
+        //     }
+        // } catch (Exception e) {
+        //     //Nothing to do
+        // }
 
         try {
             if ((null == externalFile) || (!externalFile.exists())) {
@@ -1553,12 +1547,17 @@ public class VodController extends BaseController {
             try {
                 is = new FileInputStream(externalFile);
             } catch (Exception e) {
-                // 如果存储根目录没有文件，则从 assets 加载默认配置
+                // 如果存储根目录没有文件，则从 assets 加载默认配置                
+            }
+        } 
+
+        if (null==is) {
+            // 从 assets 加载默认配置
+            if(PlayerUtils.isTvMode(context)){
+                is = context.getAssets().open("tv_keymap.json");
+            }else{
                 is = context.getAssets().open("keymap.json");
             }
-        } else {
-            // 如果存储根目录没有文件，则从 assets 加载默认配置
-            is = context.getAssets().open("keymap.json");
         }
 
         // 读取文件内容
@@ -1571,19 +1570,23 @@ public class VodController extends BaseController {
         // 解析 JSON 配置
         configJson = new JSONObject(json);
 
-
-        String stepString = configJson.getString("step");
+        String stepString = configJson.optString("step");
         int step= NumberUtils.toInt(stepString, 5000);
 
         if(defaultStep<0)
             defaultStep=step;
 
-        String repeatInterval = configJson.getString("repeat_interval");
+        String repeatInterval = configJson.optString("repeat_interval");
         KEY_REPEAT_INTERVAL= NumberUtils.toInt(stepString, 600);
 
-        String screenshotInterval = configJson.getString("screenshot_interval");
+        String screenshotInterval = configJson.optString("screenshot_interval");
         SCREENSHOT_INTERVAL= NumberUtils.toInt(stepString, 2000);
 
+        REPEAT_INTERVAL_KEYS = configJson.optString("repeat_interval_keys");
+        if(null==REPEAT_INTERVAL_KEYS){
+            REPEAT_INTERVAL_KEYS="";
+        }
+        REPEAT_INTERVAL_KEYS=REPEAT_INTERVAL_KEYS.toUpperCase();
     }
 
     private File computeKeymapFile() {
@@ -1621,16 +1624,23 @@ public class VodController extends BaseController {
         int action = event.getAction();
         boolean isInPlayback = isInPlaybackState();
 
+        String keyName = KeyEvent.keyCodeToString(keyCode);
+        if (null==keyName) {
+            keyName="";
+        }
+
         // 检查按键连击间隔
         if (action == KeyEvent.ACTION_DOWN) {
-            long currentTime = System.currentTimeMillis();
-            Long lastPressTime = keyPressTimes.get(keyCode);
-            if (lastPressTime != null && (currentTime - lastPressTime) < KEY_REPEAT_INTERVAL) {
-                // 间隔太短，忽略此次按键
-                return true;
-            }
-            // 记录按键时间
-            keyPressTimes.put(keyCode, currentTime);
+            if (REPEAT_INTERVAL_KEYS.contains(keyName.toUpperCase())) {
+                long currentTime = System.currentTimeMillis();
+                Long lastPressTime = keyPressTimes.get(keyCode);
+                if (lastPressTime != null && (currentTime - lastPressTime) < KEY_REPEAT_INTERVAL) {
+                    // 间隔太短，忽略此次按键
+                    return true;
+                }
+                // 记录按键时间
+                keyPressTimes.put(keyCode, currentTime);
+            } 
         }
 
         if (super.onKeyEvent(event)) {
@@ -1644,7 +1654,6 @@ public class VodController extends BaseController {
         }
         if (action == KeyEvent.ACTION_DOWN) {
 
-            String keyName = KeyEvent.keyCodeToString(keyCode);
             String actionName=this.configJson.optString(keyName);
 
             if (null == actionName) {

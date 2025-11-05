@@ -1,11 +1,5 @@
 package xyz.doikki.videoplayer.exo;
 
-import android.app.UiModeManager;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -261,7 +255,7 @@ public class ExoMediaPlayer extends AbstractPlayer implements Player.Listener {
         mMediaPlayer.setSeekParameters(SeekParameters.CLOSEST_SYNC);
 
         try {
-            if(isRunningOnTV(mAppContext)){
+            if(PlayerUtils.isRunningOnTV(mAppContext)){
                 float volumePercent = 0.3f;
                 mMediaPlayer.setVolume(volumePercent);
             }
@@ -389,15 +383,4 @@ public class ExoMediaPlayer extends AbstractPlayer implements Player.Listener {
             }
         }
     }
-
-    public static boolean isRunningOnTV(Context context) {
-        UiModeManager uiModeManager = (UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE);
-        boolean isTvMode = uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION;
-
-        PackageManager packageManager = context.getPackageManager();
-        boolean hasLeanback = packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK);
-
-        return isTvMode || hasLeanback;
-    }
-
 }

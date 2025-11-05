@@ -1,5 +1,10 @@
 package xyz.doikki.videoplayer.util;
 
+import android.app.UiModeManager;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
@@ -320,5 +325,15 @@ public final class PlayerUtils {
         //当前总接收量存到上次接收总量这个变量，供下次计算用
         lastTotalRxBytes = nowTotalRxBytes;
         return speed;
+    }
+
+    public static boolean isRunningOnTV(Context context) {
+        UiModeManager uiModeManager = (UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE);
+        boolean isTvMode = uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION;
+
+        PackageManager packageManager = context.getPackageManager();
+        boolean hasLeanback = packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK);
+
+        return isTvMode || hasLeanback;
     }
 }

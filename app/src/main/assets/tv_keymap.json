@@ -31,15 +31,13 @@
   "KEYCODE_8": "togglePlay",
   "KEYCODE_CHANNEL_DOWN": "togglePlay",
 
-  "KEYCODE_DPAD_UP": "setPauseTimer",
-  "KEYCODE_DPAD_DOWN": "adjustStep",
-
-  "KEYCODE_MENU": "screenshot",
-  "KEYCODE_SEARCH": "screenshot",
+  "KEYCODE_DPAD_UP": "showBottom",
+  "KEYCODE_DPAD_DOWN": "showBottom",
 
   "step": "5000",
   "margin": "40",
-  "repeat_interval":"500",
+  "repeat_interval":"5",
   "repeat_interval_keys":"",
   "screenshot_interval":"2000"
+
 }
