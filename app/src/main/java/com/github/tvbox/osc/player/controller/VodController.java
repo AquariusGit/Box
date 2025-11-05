@@ -1719,7 +1719,7 @@ public class VodController extends BaseController {
                     break;
             }
         } else if (action == KeyEvent.ACTION_UP) {
-            String keyName = KeyEvent.keyCodeToString(keyCode);
+            
             if (this.configJson.has(keyName)) {
                 if (isInPlayback) {
                     tvSlideStop();
