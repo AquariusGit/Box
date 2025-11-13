@@ -42,6 +42,18 @@ jobs:
           for file in `find ~ -name "*.apk" -print`; do
             mv "$file" ${{ github.workspace }}/apk/
           done
+
+      - name: 列出当前目录 APK 文件
+        run: |
+          echo "当前目录下的 APK 文件："
+          ls ${{ github.workspace }}/apk/*.apk
+      
+      # 重命名 APK 文件
+      - name: 重命名  APK
+        run: 
+          mv ${{ github.workspace }}/apk/TVBox_release-arm64.apk TVBox_release-arm64-${{ env.DATE }}.apk
+          mv ${{ github.workspace }}/apk/TVBox_release-armeabi.apk TVBox_release-armeabi-${{ env.DATE }}.apk
+        
       - name: Upload App To Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -51,13 +63,13 @@ jobs:
       - name: Upload armeabi To Artifact 
         uses: actions/upload-artifact@v4
         with:
-          name: com.github.tvbox.osc-armeabi
+          name: com.github.tvbox.osc-armeabi-${{ env.DATE }}
           path: ${{ github.workspace }}/apk/*armeabi*.apk
 
       - name: Upload arm64 To Artifact 
         uses: actions/upload-artifact@v4
         with:
-          name: com.github.tvbox.osc-arm64
+          name: com.github.tvbox.osc-arm64-${{ env.DATE }}
           path: ${{ github.workspace }}/apk/*arm64*.apk
       
      
