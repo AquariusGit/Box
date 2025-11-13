@@ -53,11 +53,27 @@ jobs:
           echo "当前目录下的 APK 文件："
           ls ${{ github.workspace }}/apk/*.apk
       
-      # 重命名 APK 文件
-      - name: 重命名  APK
-        run: 
-          mv ${{ github.workspace }}/apk/TVBox_release-arm64.apk ${{ github.workspace }}/apk/TVBox_release-arm64-${{ env.DATE }}.apk
-          mv ${{ github.workspace }}/apk/TVBox_release-armeabi.apk ${{ github.workspace }}/apk/TVBox_release-armeabi-${{ env.DATE }}.apk
+      - name: 给 APK 文件加日期重命名
+        run: |
+          APK_DIR=${{ github.workspace }}/apk
+          echo "APK 文件目录：$APK_DIR"
+          echo "重命名前文件列表："
+          ls -l $APK_DIR
+      
+          for apk in "$APK_DIR"/*.apk; do
+            # 获取文件名，不带路径
+            filename=$(basename "$apk")
+            # 获取文件名主干，不带扩展名
+            name="${filename%.apk}"
+            # 新文件名
+            new_name="${name}-${{ env.DATE }}.apk"
+            echo "重命名 $filename -> $new_name"
+            mv "$apk" "$APK_DIR/$new_name"
+          done
+      
+          echo "重命名后文件列表："
+          ls -l $APK_DIR
+
         
       - name: Upload App To Artifact
         uses: actions/upload-artifact@v4
