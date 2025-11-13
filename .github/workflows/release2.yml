@@ -56,8 +56,8 @@ jobs:
       # 重命名 APK 文件
       - name: 重命名  APK
         run: 
-          mv ${{ github.workspace }}/apk/TVBox_release-arm64.apk TVBox_release-arm64-${{ env.DATE }}.apk
-          mv ${{ github.workspace }}/apk/TVBox_release-armeabi.apk TVBox_release-armeabi-${{ env.DATE }}.apk
+          mv ${{ github.workspace }}/apk/TVBox_release-arm64.apk ${{ github.workspace }}/apk/TVBox_release-arm64-${{ env.DATE }}.apk
+          mv ${{ github.workspace }}/apk/TVBox_release-armeabi.apk ${{ github.workspace }}/apk/TVBox_release-armeabi-${{ env.DATE }}.apk
         
       - name: Upload App To Artifact
         uses: actions/upload-artifact@v4
