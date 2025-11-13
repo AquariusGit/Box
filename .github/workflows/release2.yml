@@ -1,4 +1,4 @@
-name: Release Build
+name: Release Build Aquarius
 
 on:
 #  push:
@@ -11,6 +11,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: 获取日期 (yyyy-MM-dd) 
+        run: |
+          DATE=$(date +'%Y-%m-%d') 
+          echo "DATE=$DATE" >> $GITHUB_ENV
+      
       - name: Checkout
         uses: actions/checkout@v4
 
